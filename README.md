@@ -5,7 +5,6 @@ For usage please [click here](http://www.jefferydurand.com/cluster_funk)
 
 If you'd like to work on this tool please read the rest of this readme to get set up with a development environment.
 
-
 # Contribute
 
 ## Installation
