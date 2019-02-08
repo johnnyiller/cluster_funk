@@ -1,0 +1,13 @@
+version: "3"
+services:
+    cluster_funk:
+        image: "cluster_funk:dev"
+        build:
+            context: .
+            dockerfile: Dockerfile
+        hostname: cluster_funk
+        stdin_open: true
+        tty: true
+        working_dir: '/cluster_funk-dev'
+        volumes:
+            - ".:/cluster_funk-dev"

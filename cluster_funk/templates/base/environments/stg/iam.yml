@@ -1,0 +1,83 @@
+Description:
+  Base IAM security groups required for running an EMR cluster.  The expecation is that the
+  permissions defined here will be extended for specific use cases including access to
+  dynamodb, S3, and redshift.  Again this is a starting point for EMR cluster permissions
+
+Resources:
+
+  EMRRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub EMR-Role-${AWS::StackName}
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          -
+            Effect: "Allow"
+            Principal:
+              Service:
+                - "elasticmapreduce.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Path: "/"
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/service-role/AmazonElasticMapReduceRole"
+
+  EMREc2Role:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub EMR-EC2-Role-${AWS::StackName}
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          -
+            Effect: "Allow"
+            Principal:
+              Service:
+                - "ec2.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Path: "/"
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/service-role/AmazonElasticMapReduceforEC2Role"
+
+  EMREc2InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties: 
+      Path: "/"
+      Roles:
+        - !Ref EMREc2Role
+      InstanceProfileName: !Sub EMR-EC2-Role-${AWS::StackName}
+
+  EMRAutoScalingRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub EMR-AutoScaling-Role-${AWS::StackName}
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          -
+            Effect: "Allow"
+            Principal:
+              Service:
+                - "application-autoscaling.amazonaws.com"
+                - "elasticmapreduce.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Path: "/"
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/service-role/AmazonElasticMapReduceforAutoScalingRole"
+
+Outputs:
+
+  EMRRoleName:
+    Description: Role used by EMR for setting up a cluster.
+    Value: !Ref EMRRole
+
+  EMREc2RoleName:
+    Description: Role used by cluster nodes for setting up and accessing data sources. Might need changing depending on data access requirements
+    Value: !Ref EMREc2Role
+
+  EMRAutoScalingRoleName:
+    Description: Gives cloudwatch access along with EMR access to autoscaling agent. Should not need modification
+    Value: !Ref EMRAutoScalingRole

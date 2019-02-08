@@ -1,0 +1,7 @@
+cement==3.0.2
+boto3>=1.9.82
+fabric
+jinja2
+pyyaml
+colorlog
+tinydb
