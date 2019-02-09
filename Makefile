@@ -17,7 +17,7 @@ test:
 		-v \
 		--cov=cluster_funk \
 		--cov-report=term \
-		--junitxml=pytest-report.xml \
+		--cov-report=xml \
 		--cov-report=html:coverage-report \
 		tests/
 
