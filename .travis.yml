@@ -4,9 +4,13 @@ python:
   - "3.6"
 before_install:
   - sudo rm -f /etc/boto.cfg
+  - mkdir -p ~/.aws
+  - touch ~/.aws/credentials
 install:
   - pip install -r requirements.txt
   - pip install -r requirements-dev.txt
-  - pip install pytest boto --upgrade
+  - pip install pytest --upgrade
+  - pip install awscli --upgrade --user
 script:
+  - make setupaws
   - make test lint
