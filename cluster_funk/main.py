@@ -3,7 +3,7 @@ import uuid
 
 from tinydb import TinyDB
 from cement import App, TestApp, init_defaults
-from cement.ext.ext_logging import LoggingLogHandler 
+from cement.ext.ext_logging import LoggingLogHandler
 from cement.core.exc import CaughtSignal
 from cement.utils import fs
 from cement.core.template import TemplateHandler
@@ -27,7 +27,8 @@ class CustomTemplateHandler(TemplateHandler):
 
     def render(self, content, data):
         template = Template(content)
-        return template.render(**data) 
+        return template.render(**data)
+
 
 def extend_tinydb(app):
     app.log.info('extending cluster_funk application with tinydb')
@@ -42,15 +43,16 @@ def extend_tinydb(app):
 
     db = TinyDB(db_file)
 
-    user_info = { 'id': str(uuid.uuid4())}
+    user_info = {'id': str(uuid.uuid4())}
     table = db.table('users')
     allusers = table.all()
     if not len(allusers):
-       table.insert(user_info)
+        table.insert(user_info)
     else:
-       user_info = allusers[0]
+        user_info = allusers[0]
 
     app.extend('db', db)
+
 
 class ClusterFunk(App):
     """Cluster Funk primary application."""
@@ -103,12 +105,13 @@ class ClusterFunkTestLoggingLogHandler(LoggingLogHandler):
     pass
 
 
-class ClusterFunkTest(TestApp,ClusterFunk):
+class ClusterFunkTest(TestApp, ClusterFunk):
     """A sub-class of ClusterFunk that is better suited for testing."""
 
     class Meta:
         label = 'cluster_funk'
         log_handler = ClusterFunkTestLoggingLogHandler
+
 
 def main():
     with ClusterFunk() as app:

@@ -1,7 +1,10 @@
 import json
 
+
 class SagemakerNotebookBooter:
     pass
+
+
 """
     def __init__(self, cluster_id, session):
         self.cluster_id = cluster_id

@@ -1,5 +1,6 @@
 import boto3
 
+
 class StackDeployer:
 
     def __init__(self, user_id, profile, stack_prefix, env, stack_type, capabilities=['CAPABILITY_NAMED_IAM']):
@@ -9,9 +10,10 @@ class StackDeployer:
         self.env = env
         self.stack_type = stack_type
         self.user_id = user_id
-        self.stack_name = "{stack_prefix}-{env}-{stack_type}".format(stack_prefix=stack_prefix, env=env, stack_type=stack_type)
-        self.template_body = open("./environments/{env}/{stack_type}.yml".format(env=env, stack_type=stack_type), 'r').read()
-    
+        self.stack_name = "{stack_prefix}-{env}-{stack_type}".format(
+            stack_prefix=stack_prefix, env=env, stack_type=stack_type)
+        self.template_body = open(
+            "./environments/{env}/{stack_type}.yml".format(env=env, stack_type=stack_type), 'r').read()
 
     def deploy(self):
         session = boto3.session.Session(profile_name=self.profile)
@@ -52,7 +54,7 @@ class StackDeployer:
                     },
                     {
                         'Key': 'user_id',
-                        'Value': self.user_id 
+                        'Value': self.user_id
                     },
                     {
                         'Key': 'environment',
@@ -63,6 +65,7 @@ class StackDeployer:
                 EnableTerminationProtection=True
             )
             waiter = client.get_waiter('stack_create_complete')
+
             def wait_func():
                 waiter.wait(
                     StackName=response['StackId'],
@@ -80,6 +83,7 @@ class StackDeployer:
                     Capabilities=self.capabilities
                 )
                 waiter = client.get_waiter('stack_update_complete')
+
                 def wait_func():
                     waiter.wait(
                         StackName=response['StackId'],
@@ -90,6 +94,6 @@ class StackDeployer:
                     )
                 return (wait_func, response)
             except client.exceptions.ClientError as nochanges:
-                return (None, { 'message': str("%s -> %s" % ("no changes to apply", nochanges)) })
+                return (None, {'message': str("%s -> %s" % ("no changes to apply", nochanges))})
 
-        return (None, { 'message' : 'no operation performed' })
+        return (None, {'message': 'no operation performed'})

@@ -1,5 +1,6 @@
 import logging
 
+
 class EmrCluster:
 
     def __init__(self, client, cluster_id, log=logging.Logger("cluster_funk")):
@@ -25,7 +26,7 @@ class EmrCluster:
                     'ActionOnFailure': on_failure,
                     'HadoopJarStep': {
                         'Jar': 'command-runner.jar',
-                        'Args': base_args                    
+                        'Args': base_args
                     }
                 }
             ]

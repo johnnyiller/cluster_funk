@@ -3,7 +3,7 @@ import os
 import stat
 import re
 import boto3
-import fabric 
+import fabric
 
 from datetime import datetime
 from functools import partial
@@ -19,6 +19,7 @@ from ..core.clusters.cluster_instance import ClusterInstance
 from .arguments import profile as profile_arg
 from .arguments import cluster_id as cluster_id_arg
 from .arguments import ssh_key_location as ssh_key_location_arg
+
 
 class Clusters(Controller):
 
@@ -38,7 +39,7 @@ class Clusters(Controller):
             (['-s', '--state'], {
                 'help': 'By default we only show WAITING, RUNNING clusters pass in -s multiple times for multiple states',
                 'action': 'append',
-                'choices': ['STARTING','BOOTSTRAPPING','RUNNING','WAITING','TERMINATING','TERMINATED','TERMINATED_WITH_ERRORS'],
+                'choices': ['STARTING', 'BOOTSTRAPPING', 'RUNNING', 'WAITING', 'TERMINATING', 'TERMINATED', 'TERMINATED_WITH_ERRORS'],
                 'default': ['WAITING', 'RUNNING']
             }),
             profile_arg()
@@ -52,7 +53,7 @@ class Clusters(Controller):
         session = boto3.session.Session(profile_name=profile)
         client = session.client('emr')
         paginator = client.get_paginator('list_clusters')
-        
+
         table = self.app.db.table('users')
         user_id = table.all()[0]['id']
 
@@ -66,7 +67,8 @@ class Clusters(Controller):
         for response in paginator.paginate(ClusterStates=states):
             clusters = [*response['Clusters'], *clusters]
 
-        clusters = [client.describe_cluster(ClusterId=cluster['Id'])['Cluster'] for cluster in clusters]
+        clusters = [client.describe_cluster(ClusterId=cluster['Id'])[
+            'Cluster'] for cluster in clusters]
 
         if not allclusters:
             clusters = [cluster for cluster in clusters if mine(cluster)]
@@ -92,7 +94,7 @@ class Clusters(Controller):
         profile = self.app.pargs.profile
         ssh_key = self.app.pargs.ssh_key
         config_file = self.app.pargs.config_file
-        log = self.app.log 
+        log = self.app.log
 
         session = boto3.session.Session(profile_name=profile)
         client = session.client('emr')
@@ -100,19 +102,22 @@ class Clusters(Controller):
 
         paginator = client.get_paginator('list_instances')
         response_iterator = paginator.paginate(ClusterId=cluster_id)
-        
-        #try:
+
+        # try:
         cluster_conf = open(config_file, "r").read()
         pips = yaml.load(cluster_conf).get('PipInstall', [])
-        #except:
+        # except:
         #    log.error("Sorry we couldn't find anything to pip install in your config file")
         #    return
 
         for response in response_iterator:
             for instance in response['Instances']:
-                instance = ClusterInstance(instance, { "key_filename": [ssh_key] })
-                log.info("\nInstalling dependencies on %s" % instance.public_dns_name)
-                resp = instance.run_cmd("sudo /usr/bin/python3 -m pip install %s" % (" ".join(pips)))
+                instance = ClusterInstance(
+                    instance, {"key_filename": [ssh_key]})
+                log.info("\nInstalling dependencies on %s" %
+                         instance.public_dns_name)
+                resp = instance.run_cmd(
+                    "sudo /usr/bin/python3 -m pip install %s" % (" ".join(pips)))
                 log.info(resp)
 
     @ex(
@@ -128,7 +133,7 @@ class Clusters(Controller):
             }),
             profile_arg(),
             cluster_id_arg(),
-            ssh_key_location_arg() 
+            ssh_key_location_arg()
         ]
     )
     def run_cmd(self):
@@ -136,7 +141,7 @@ class Clusters(Controller):
         profile = self.app.pargs.profile
         master_only = self.app.pargs.master_only
         ssh_key = self.app.pargs.ssh_key
-        log = self.app.log 
+        log = self.app.log
 
         session = boto3.session.Session(profile_name=profile)
         client = session.client('emr')
@@ -148,11 +153,13 @@ class Clusters(Controller):
         instances = []
         for response in response_iterator:
             for instance in response['Instances']:
-                instances.append(ClusterInstance(instance, { "key_filename": [ssh_key] }))
+                instances.append(ClusterInstance(
+                    instance, {"key_filename": [ssh_key]}))
 
         if master_only:
-            instances = [instance for instance in instances if instance.public_dns_name == master_dns]
-        
+            instances = [
+                instance for instance in instances if instance.public_dns_name == master_dns]
+
         for instance in instances:
             log.info("\nRunning command on host %s" % instance.public_dns_name)
             resp = instance.run_cmd(self.app.pargs.run_cmd)
@@ -204,13 +211,15 @@ class Clusters(Controller):
         instances = []
         for response in response_iterator:
             for instance in response['Instances']:
-                instances.append(ClusterInstance(instance, { "key_filename": [ssh_key] }))
+                instances.append(ClusterInstance(
+                    instance, {"key_filename": [ssh_key]}))
 
         for instance in instances:
-            log.info("\n\nCopy file or folder %s, to %s:%s" % (source, instance.public_dns_name, dest))
+            log.info("\n\nCopy file or folder %s, to %s:%s" %
+                     (source, instance.public_dns_name, dest))
             result = instance.syncfiles(source, dest)
             log.info(str(result))
-    
+
     @ex(
         help='boot a cluster based on the cluster config',
         arguments=[
@@ -238,26 +247,30 @@ class Clusters(Controller):
 
         session = boto3.session.Session(profile_name=profile)
         client = session.client('ec2')
-        names = [pair['KeyName'] for pair in client.describe_key_pairs().get('KeyPairs', [])]
+        names = [pair['KeyName']
+                 for pair in client.describe_key_pairs().get('KeyPairs', [])]
 
         if name in names:
-            self.app.log.fatal("Key already exists please specify a different key name")
-            self.app.log.info("These are the keys associated with your profile")
+            self.app.log.fatal(
+                "Key already exists please specify a different key name")
+            self.app.log.info(
+                "These are the keys associated with your profile")
             self.app.log.info(yaml.dump(names, default_flow_style=False))
             return
-        
-        keypair = client.create_key_pair(KeyName=name) 
+
+        keypair = client.create_key_pair(KeyName=name)
         fs.ensure_dir_exists(directory)
 
-        key_location = os.path.join(directory, "{name}".format(name=keypair['KeyName']))
-        
+        key_location = os.path.join(
+            directory, "{name}".format(name=keypair['KeyName']))
+
         with open(key_location, 'w') as text_file:
             text_file.write(keypair['KeyMaterial'])
-        
+
         self.app.log.info("Wrote new key to %s" % (key_location))
         os.chmod(key_location, stat.S_IRUSR | stat.S_IWUSR)
-        self.app.log.info("Changed permissions to prevent other users from reading the key")
-
+        self.app.log.info(
+            "Changed permissions to prevent other users from reading the key")
 
     @ex(
         help='boot a cluster based on the cluster config',
@@ -302,19 +315,22 @@ class Clusters(Controller):
 
             """)
             if should_prompt:
-                resp = shell.Prompt("Do you still want to create the cluster?",options=['yes', 'no'], numbered = True)
+                resp = shell.Prompt("Do you still want to create the cluster?", options=[
+                                    'yes', 'no'], numbered=True)
                 if resp.input == 'no':
-                    log.info("({input}) selected, please try again once you have create a ec2_key".format(input=resp.input))
+                    log.info("({input}) selected, please try again once you have create a ec2_key".format(
+                        input=resp.input))
                     return
-        
+
         try:
             table = self.app.db.table('users')
             user_id = table.all()[0]['id']
         except IndexError:
             user_id = None
-        
+
         if not os.path.exists(config_path):
-            log.info("Could not find the cluster configuration you entered.  Please specify a valid path")
+            log.info(
+                "Could not find the cluster configuration you entered.  Please specify a valid path")
             return
 
         config = yaml.load(open(config_path).read())
@@ -322,13 +338,14 @@ class Clusters(Controller):
         config['Tags'] = config.get('Tags', {})
         config['Tags']['user_id'] = user_id
         config['Ec2KeyName'] = self.app.pargs.ec2_key_name or None
-        
+
         session = boto3.session.Session(profile_name=profile)
-        
+
         booter = ClusterBooter(config, session)
         wait, resp = booter.boot()
         if wait:
-            log.info("Waiting for cluster to boot.  This can take about 10 minutes.  Feel free to grab a cup of ☕")
+            log.info(
+                "Waiting for cluster to boot.  This can take about 10 minutes.  Feel free to grab a cup of ☕")
             wait()
             log.info("All set, cluster is fully booted.")
 
@@ -339,12 +356,11 @@ class Clusters(Controller):
             'on': str(datetime.now())
         })
 
-
     @ex(
         help='given some stack information along with a job name, generate a config file',
         arguments=[
-            (['-s', '--stack-prefix'], { 
-                'help': 'The cloudforamtion stack prefix (default: emr-spark-dev)', 
+            (['-s', '--stack-prefix'], {
+                'help': 'The cloudforamtion stack prefix (default: emr-spark-dev)',
                 'action': 'store',
                 'default': 'emr-spark'
             }),
@@ -378,7 +394,7 @@ class Clusters(Controller):
         args = self.app.pargs
         job = args.job or "unknown job"
         env = args.env or "dev"
-        
+
         session = boto3.session.Session(profile_name=args.profile)
         client = session.client('cloudformation')
         stacks = StackCollection(client). \
@@ -387,7 +403,8 @@ class Clusters(Controller):
             filter_by(partial(StackCollection.has_prefix, args.stack_prefix))
 
         output = stacks.output_dict()
-        cluster_name = "Apache Spark for job {env}/{job}".format(env=env, job=job)
+        cluster_name = "Apache Spark for job {env}/{job}".format(
+            env=env, job=job)
         # acquire latest Base AMI
         config = {
             'Name': cluster_name,
@@ -436,17 +453,21 @@ class Clusters(Controller):
         # make sure env and job are valid!
         if env and job:
             root = find_nearest_root()
-            env_config_path = os.path.join(root, 'jobs', job, 'config', 'clusters', env)
+            env_config_path = os.path.join(
+                root, 'jobs', job, 'config', 'clusters', env)
             config_path = os.path.join(env_config_path, "config.yml")
             fs.ensure_dir_exists(env_config_path)
 
             if not os.path.exists(config_path) or args.force:
                 with open(config_path, "w") as text_file:
-                    text_file.write(yaml.dump(config, default_flow_style=False))
-                self.app.log.info("Wrote a new config file too. {config_path}".format(config_path=config_path))
+                    text_file.write(
+                        yaml.dump(config, default_flow_style=False))
+                self.app.log.info("Wrote a new config file too. {config_path}".format(
+                    config_path=config_path))
             else:
-                self.app.log.info("config already exists use -f if you really want to overwrite the existing one")
-        
+                self.app.log.info(
+                    "config already exists use -f if you really want to overwrite the existing one")
+
         self.app.log.info("\n%s" % yaml.dump(config, default_flow_style=False))
 
     @ex(
@@ -457,5 +478,6 @@ class Clusters(Controller):
         profile = self.app.pargs.profile
         session = boto3.session.Session(profile_name=profile)
         client = session.client('emr')
-        resp = client.terminate_job_flows(JobFlowIds=[self.app.pargs.cluster_id])
+        resp = client.terminate_job_flows(
+            JobFlowIds=[self.app.pargs.cluster_id])
         self.app.log.info(resp)

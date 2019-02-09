@@ -1,6 +1,5 @@
 import os
 
-from pytest import raises
 from cluster_funk.main import ClusterFunkTest
 
 

@@ -2,6 +2,7 @@ import yaml
 import textwrap
 import hashlib
 
+
 class ClusterBooter:
 
     def __init__(self, config, session):
@@ -31,14 +32,14 @@ class ClusterBooter:
                         'EbsConfiguration': {
                             'EbsBlockDeviceConfigs': [{
                                 'VolumeSpecification': {
-                                    'SizeInGB':32,
-                                    'VolumeType':'gp2'
+                                    'SizeInGB': 32,
+                                    'VolumeType': 'gp2'
                                 },
-                                'VolumesPerInstance':1
+                                'VolumesPerInstance': 1
                             }],
-                            'EbsOptimized':False
-                        }   
-                    }, 
+                            'EbsOptimized': False
+                        }
+                    },
                     {
                         'Name': 'WorkerEMR',
                         'Market': 'ON_DEMAND',
@@ -46,18 +47,18 @@ class ClusterBooter:
                         'InstanceType': 'm1.medium',
                         'InstanceRole': 'CORE',
                         'EbsConfiguration': {
-                            'EbsBlockDeviceConfigs': [{ 
+                            'EbsBlockDeviceConfigs': [{
                                 'VolumeSpecification': {
-                                    'SizeInGB':100,
-                                    'VolumeType':'gp2'
+                                    'SizeInGB': 100,
+                                    'VolumeType': 'gp2'
                                 },
-                                'VolumesPerInstance':1
+                                'VolumesPerInstance': 1
                             }],
-                            'EbsOptimized':False
+                            'EbsOptimized': False
                         }
                     }
                 ],
-                #'Ec2KeyName': 'Dcos',
+                # 'Ec2KeyName': 'Dcos',
                 'KeepJobFlowAliveWhenNoSteps': True,
                 'TerminationProtected': False,
                 'Ec2SubnetId': 'placeholder',
@@ -80,38 +81,38 @@ class ClusterBooter:
                     'Name': 'Hive'
                 }
             ],
-            Configurations= [
+            Configurations=[
                 {
-                    'Classification':'emrfs-site',
+                    'Classification': 'emrfs-site',
                     'Properties': {
-                        "fs.s3.consistent.retryPeriodSeconds":"10",
-                        "fs.s3.consistent":"true",
-                        "fs.s3.consistent.retryCount":"5",
+                        "fs.s3.consistent.retryPeriodSeconds": "10",
+                        "fs.s3.consistent": "true",
+                        "fs.s3.consistent.retryCount": "5",
                         "fs.s3.consistent.metadata.tableName": "EmrFSMetadata"
                     }
                 },
                 {
-                    "Classification": "spark-defaults", 
+                    "Classification": "spark-defaults",
                     "Properties": {
                         "spark.yarn.appMasterEnv.SPARK_HOME": "/usr/lib/spark",
                         "spark.yarn.appMasterEnv.PYSPARK_PYTHON": "/usr/bin/python3"
                     }
                 },
                 {
-                    "Classification": "yarn-site", 
+                    "Classification": "yarn-site",
                     "Properties": {
                         "yarn.nodemanager.vmem-check-enabled": "false"
                     }
                 },
                 {
-                     "Classification": "spark-env",
-                     "Configurations": [
-                         {
-                             "Classification": "export",
-                             "Properties": {
+                    "Classification": "spark-env",
+                    "Configurations": [
+                        {
+                            "Classification": "export",
+                            "Properties": {
                                 "PYSPARK_PYTHON": "/usr/bin/python3"
-                             }
-                       }
+                            }
+                        }
                     ]
                 },
                 {
@@ -135,38 +136,38 @@ class ClusterBooter:
         user_config = self.user_config.copy()
 
         cluster_properties = (
-            'JobFlowRole', 
-            'ServiceRole', 
-            'AutoScalingRole', 
-            'Name', 
+            'JobFlowRole',
+            'ServiceRole',
+            'AutoScalingRole',
+            'Name',
             'EbsRootVolumeSize'
         )
 
         for item in cluster_properties:
-            user_config_item = user_config.get(item, None) 
+            user_config_item = user_config.get(item, None)
             if user_config_item:
                 base[item] = user_config_item
                 user_config_item = None
-        
+
         if user_config.get('Ami', None):
             base['CustomAmiId'] = user_config['Ami']
 
         instances = base['Instances']
         instance_properties = (
-            'KeepJobFlowAliveWhenNoSteps', 
-            'Ec2SubnetId', 
-            'EmrManagedMasterSecurityGroup', 
+            'KeepJobFlowAliveWhenNoSteps',
+            'Ec2SubnetId',
+            'EmrManagedMasterSecurityGroup',
             'EmrManagedSlaveSecurityGroup'
         )
         for item in instance_properties:
-            user_config_item = user_config.get(item, None) 
+            user_config_item = user_config.get(item, None)
             if user_config_item:
                 instances[item] = user_config_item
                 user_config_item = None
 
         base['Tags'] = base.get('Tags', [])
-        for k, v in user_config.get('Tags',{}).items():
-            base['Tags'].append({ 'Key': k, 'Value': v })
+        for k, v in user_config.get('Tags', {}).items():
+            base['Tags'].append({'Key': k, 'Value': v})
 
         for group in base['Instances']['InstanceGroups']:
             if group['InstanceRole'] == 'MASTER':
@@ -180,9 +181,8 @@ class ClusterBooter:
                 for device_config in group['EbsConfiguration']['EbsBlockDeviceConfigs']:
                     device_config['VolumeSpecification']['SizeInGB'] = user_config['Worker']['Instance']['Storage']
 
-
         base['LogUri'] = "s3n://{bucket}/{prefix}/logs".format(
-            bucket=user_config["WorkLoadBucket"], 
+            bucket=user_config["WorkLoadBucket"],
             prefix=user_config["WorkLoadPrefix"]
         )
         if user_config['PipInstall']:
@@ -194,7 +194,7 @@ class ClusterBooter:
                     'Path': location
                 }
             })
-        
+
         if user_config['AwsXrayEnabled']:
             script = self._generate_xray_script()
             location = self._save_script_to_s3(script)
@@ -204,7 +204,7 @@ class ClusterBooter:
                     'Path': location
                 }
             })
-        
+
         if user_config['Ec2KeyName']:
             base['Instances']['Ec2KeyName'] = user_config['Ec2KeyName']
 
@@ -213,7 +213,7 @@ class ClusterBooter:
         return self.config
 
     def _generate_pip_script(self, pips):
-        script=[
+        script = [
             '#!/bin/bash',
             'set -e',
             'FILE="/home/hadoop/requirements.txt"',
@@ -241,14 +241,15 @@ class ClusterBooter:
         file_name = hashlib.md5(script_bytes).hexdigest()
         self.s3_client.put_object(
             Body=script_bytes,
-            Bucket=self.bucket, 
+            Bucket=self.bucket,
             Key="%s/scripts/%s.sh" % (self.prefix, file_name)
         )
         return "s3://%s/%s/scripts/%s.sh" % (self.bucket, self.prefix, file_name)
-    
+
     def boot(self):
         response = self.emr_client.run_job_flow(**self.config)
         waiter = self.emr_client.get_waiter('cluster_running')
+
         def wait():
             waiter.wait(
                 ClusterId=response['JobFlowId'],
@@ -257,4 +258,4 @@ class ClusterBooter:
                     'MaxAttempts': 30
                 }
             )
-        return wait, response 
+        return wait, response

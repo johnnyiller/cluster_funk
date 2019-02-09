@@ -26,9 +26,11 @@ from .arguments import ssh_key_location as ssh_key_location_arg
 from .arguments import job_on_failure as job_on_failure_arg
 from .arguments import job_on_success as job_on_success_arg
 
+
 def emr_client(pargs):
     session = boto3.session.Session(profile_name=pargs.profile)
     return session.client('emr')
+
 
 class Jobs(Controller):
 
@@ -38,7 +40,7 @@ class Jobs(Controller):
         stacked_on = 'base'
         description = 'Commands for creating and submitting jobs to running clusters'
         epilog = "Usage: cluster_funk jobs generate -n my_great_new_job"
-        help="Create and submit jobs to a cluster"
+        help = "Create and submit jobs to a cluster"
 
     @ex(
         help='Get the most recent 100 jobs from a cluster',
@@ -46,33 +48,35 @@ class Jobs(Controller):
             cluster_id_arg(),
             job_id_arg(),
             profile_arg(),
-            job_state_arg() 
+            job_state_arg()
         ]
     )
     def list(self):
-        #most_recent_cluster_id(self.app)
+        # most_recent_cluster_id(self.app)
         client = emr_client(self.app.pargs)
         cluster_id = self.app.pargs.cluster_id
         job_id = self.app.pargs.job_id
         states = self.app.pargs.state
 
         jobs = JobCollection(
-            client=client, 
-            cluster_id=cluster_id, 
-            job_id=job_id, 
+            client=client,
+            cluster_id=cluster_id,
+            job_id=job_id,
             states=states
         )
 
         if len(jobs):
             for job in jobs.reverse():
-                self.app.log.info("\n----------------------------\n%s" % (yaml.dump(job)))
+                self.app.log.info(
+                    "\n----------------------------\n%s" % (yaml.dump(job)))
         else:
-            self.app.log.info("We didn't find any jobs for that cluster.  please check the cluster id")
+            self.app.log.info(
+                "We didn't find any jobs for that cluster.  please check the cluster id")
 
     @ex(
         help='Bundle up a job and submit it to the running cluster',
-        arguments = [
-            job_name_arg(), 
+        arguments=[
+            job_name_arg(),
             cluster_id_arg(),
             profile_arg(),
             job_argument_arg(),
@@ -81,7 +85,7 @@ class Jobs(Controller):
         ]
     )
     def submit(self):
-        root_path = find_nearest_root()        
+        root_path = find_nearest_root()
         profile = self.app.pargs.profile
         cluster_id = self.app.pargs.cluster_id
         on_failure = self.app.pargs.on_failure
@@ -92,13 +96,13 @@ class Jobs(Controller):
 
         session = boto3.session.Session(profile_name=profile)
         client = session.client('emr')
-        
+
         job_dir = "{root}/jobs/{name}".format(root=root_path, name=name)
         job_folder_id = str(uuid.uuid4())
         dest = "/mnt/tmp/%s" % (job_folder_id)
 
         log.info("Staging job run: %s" % (job_folder_id))
-        
+
         instances = ClusterInstanceCollection(
             client=client,
             cluster_id=cluster_id,
@@ -108,12 +112,12 @@ class Jobs(Controller):
         instances.syncfiles(job_dir, dest)
 
         log.info("Add folder to hdfs")
-        instances[0].run_cmd("hadoop fs -mkdir -p /mnt/tmp")   
+        instances[0].run_cmd("hadoop fs -mkdir -p /mnt/tmp")
         instances[0].run_cmd("hadoop fs -put %s %s" % (dest, dest))
         cluster = EmrCluster(
             client=client,
             cluster_id=cluster_id,
-            log=log 
+            log=log
         )
         job_params = {
             'job_path': dest,
@@ -123,30 +127,34 @@ class Jobs(Controller):
             job_params['arguments'] = arguments
 
         response = cluster.submit_spark_job(**job_params)
-         
+
         log.info(response)
 
     @ex(
         help='Generate a new job in the jobs directory',
-        arguments = [
+        arguments=[
             job_name_arg()
         ]
     )
     def generate(self):
-        root_path = find_nearest_root()        
+        root_path = find_nearest_root()
 
         if not root_path:
-            self.app.log.fatal("Could not find the root of the project please change directories")
+            self.app.log.fatal(
+                "Could not find the root of the project please change directories")
             return None
 
         fs.ensure_dir_exists("%s/jobs" % root_path)
-        job_dir = "{root}/jobs/{name}".format(root=root_path, name=self.app.pargs.name)
+        job_dir = "{root}/jobs/{name}".format(
+            root=root_path, name=self.app.pargs.name)
 
         if os.path.exists(job_dir):
-            self.app.log.fatal("Sorry there is already a job in this directory can't overwrite")
+            self.app.log.fatal(
+                "Sorry there is already a job in this directory can't overwrite")
             return None
 
-        example_path = os.path.join(fs.abspath(__file__), os.pardir, os.pardir, "templates", "word_count")
+        example_path = os.path.join(fs.abspath(
+            __file__), os.pardir, os.pardir, "templates", "word_count")
         data = {
             "name": self.app.pargs.name
         }

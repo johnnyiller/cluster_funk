@@ -2,10 +2,11 @@ import logging
 
 from .cluster_instance import ClusterInstance
 
+
 class ClusterInstanceCollection:
 
     def __init__(self, client=None, cluster_id=None,
-            states=None, data=None, cluster_key=None, log=logging.Logger("cluster_funk")):
+                 states=None, data=None, cluster_key=None, log=logging.Logger("cluster_funk")):
         self.log = log
         super()
         if data is None:
@@ -15,9 +16,10 @@ class ClusterInstanceCollection:
 
             for response in response_iterator:
                 for instance in response['Instances']:
-                    self.list.append(ClusterInstance(instance, { "key_filename": [cluster_key] }))
+                    self.list.append(ClusterInstance(
+                        instance, {"key_filename": [cluster_key]}))
         else:
-           self.list = list(data)
+            self.list = list(data)
 
     def __len__(self):
         return len(self.list)
@@ -46,8 +48,8 @@ class ClusterInstanceCollection:
 
     def syncfiles(self, src, dest):
         for ci in self.list:
-            self.log.info("\n\nCopy file or folder %s, to %s:%s" % (src, ci.public_dns_name, dest))
+            self.log.info("\n\nCopy file or folder %s, to %s:%s" %
+                          (src, ci.public_dns_name, dest))
             result = ci.syncfiles(src, dest)
             self.log.info("Copied files:\n %s" % result)
         return self
-

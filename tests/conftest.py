@@ -2,7 +2,6 @@
 PyTest Fixtures.
 """
 import boto3
-from boto.emr.step import StreamingStep
 
 from moto import mock_emr
 

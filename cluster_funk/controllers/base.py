@@ -10,6 +10,7 @@ cluster_funk - a CLI for developing big data jobs %s
 %s
 """ % (get_version(), get_version_banner())
 
+
 class Base(Controller):
     class Meta:
         label = 'base'
@@ -22,12 +23,11 @@ class Base(Controller):
 
         # controller level arguments. ex: 'cluster_funk --version'
         arguments = [
-            ### add a version banner
-            ( [ '-v', '--version' ],
-              { 'action'  : 'version',
-                'version' : VERSION_BANNER } ),
+            # add a version banner
+            (['-v', '--version'],
+             {'action': 'version',
+                'version': VERSION_BANNER}),
         ]
-
 
     def _default(self):
         """Default action if no sub-command is passed."""
@@ -36,11 +36,12 @@ class Base(Controller):
     @ex(
         help='Create a new cluster_funk project',
         arguments=[
-            (['name'], { 'help': "what's the name of the project" })
+            (['name'], {'help': "what's the name of the project"})
         ]
     )
     def new(self):
         """Initialize EMR big data job project"""
-        src = os.path.join(fs.abspath(__file__), os.pardir, os.pardir, "templates", "base")
+        src = os.path.join(fs.abspath(__file__), os.pardir,
+                           os.pardir, "templates", "base")
         dest = os.path.join(os.curdir, self.app.pargs.name)
         self.app.template.copy(src, dest, {})
