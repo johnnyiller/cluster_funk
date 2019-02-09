@@ -1,5 +1,12 @@
 [![Build Status](https://travis-ci.org/johnnyiller/cluster_funk.svg?branch=master)](https://travis-ci.org/johnnyiller/cluster_funk)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=johnnyiller_cluster_funk&metric=alert_status)](https://sonarcloud.io/dashboard?id=johnnyiller_cluster_funk)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=johnnyiller_cluster_funk&metric=bugs)](https://sonarcloud.io/dashboard?id=johnnyiller_cluster_funk)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=johnnyiller_cluster_funk&metric=code_smells)](https://sonarcloud.io/dashboard?id=johnnyiller_cluster_funk)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=johnnyiller_cluster_funk&metric=coverage)](https://sonarcloud.io/dashboard?id=johnnyiller_cluster_funk)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=johnnyiller_cluster_funk&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=johnnyiller_cluster_funk)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=johnnyiller_cluster_funk&metric=security_rating)](https://sonarcloud.io/dashboard?id=johnnyiller_cluster_funk)
+[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=johnnyiller_cluster_funk&metric=sqale_index)](https://sonarcloud.io/dashboard?id=johnnyiller_cluster_funk)
+
+
 
 # Requirements
 1. python >= 3.6 
