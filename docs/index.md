@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/johnnyiller/cluster_funk.svg?branch=master)](https://travis-ci.org/johnnyiller/cluster_funk)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=johnnyiller_cluster_funk&metric=alert_status)](https://sonarcloud.io/dashboard?id=johnnyiller_cluster_funk)
 
 # Requirements
 1. python >= 3.6 
