@@ -14,6 +14,7 @@ install:
 script:
   - make setupaws
   - make test lint
+  - coverage xml -i
   - sonar-scanner
 addons:
   sonarcloud:
