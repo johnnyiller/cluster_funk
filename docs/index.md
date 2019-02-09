@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/johnnyiller/cluster_funk.svg?branch=master)](https://travis-ci.org/johnnyiller/cluster_funk)
+
 # Requirements
 1. python >= 3.6 
 1. Some variant of linux.  Use docker on windows?
