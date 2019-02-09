@@ -10,7 +10,7 @@ install:
   - pip install -r requirements.txt
   - pip install -r requirements-dev.txt
   - pip install pytest --upgrade
-  - pip install awscli --upgrade --user
+  - pip install awscli
 script:
   - make setupaws
   - make test lint
