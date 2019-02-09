@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/johnnyiller/cluster_funk.svg?branch=master)](https://travis-ci.org/johnnyiller/cluster_funk)
+
 # cluster_funk
 *An opinionated framework for running big data jobs*
 
