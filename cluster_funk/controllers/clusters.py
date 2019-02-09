@@ -1,9 +1,7 @@
 import yaml
 import os
 import stat
-import re
 import boto3
-import fabric
 
 from datetime import datetime
 from functools import partial

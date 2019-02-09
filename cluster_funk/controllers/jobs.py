@@ -1,5 +1,3 @@
-import re
-import argparse
 import boto3
 import uuid
 import os
@@ -7,11 +5,8 @@ import yaml
 
 from cement import Controller, ex
 from cement.utils import fs
-from cement.utils.shell import Prompt
-from tinydb import Query
 
 from ..core.utils import find_nearest_root
-from ..core.clusters.cluster_instance import ClusterInstance
 from ..core.jobs.job_collection import JobCollection
 from ..core.clusters.cluster_instance_collection import ClusterInstanceCollection
 from ..core.clusters.emr_cluster import EmrCluster
@@ -24,8 +19,6 @@ from .arguments import job_name as job_name_arg
 from .arguments import job_argument as job_argument_arg
 from .arguments import ssh_key_location as ssh_key_location_arg
 from .arguments import job_on_failure as job_on_failure_arg
-from .arguments import job_on_success as job_on_success_arg
-
 
 def emr_client(pargs):
     session = boto3.session.Session(profile_name=pargs.profile)

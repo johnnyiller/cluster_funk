@@ -1,6 +1,4 @@
 import os
-import re
-import tarfile
 
 
 def find_nearest_root(current_path=os.getcwd(), iterleft=20):
@@ -18,7 +16,7 @@ def get_subfolders(start_path):
         if os.path.exists(full_path):
             return os.listdir(full_path)
         return list()
-    except TypeError as type_issue:
+    except TypeError:
         return list()
 
 

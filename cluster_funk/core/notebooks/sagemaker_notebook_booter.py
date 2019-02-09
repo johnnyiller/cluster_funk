@@ -1,9 +1,7 @@
-import json
 
 
 class SagemakerNotebookBooter:
     pass
-
 
 """
     def __init__(self, cluster_id, session):
