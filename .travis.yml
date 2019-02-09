@@ -4,7 +4,6 @@ python:
 install:
   - pip install -r requirements.txt
   - pip install -r requirements-dev.txt
-  - pip install pytest --upgrade
-  - pip install boto
+  - pip install pytest boto --upgrade
 script:
   - make test lint
