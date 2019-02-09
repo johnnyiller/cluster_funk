@@ -34,11 +34,11 @@ def test_cluster_funk_new(tmp):
     for directory, subdirectory, files in os.walk(new_path):
 
         if directory == new_path:
-            assert ['.cf', 'environments', 'jobs'] == subdirectory
+            assert set(['.cf', 'environments', 'jobs']) == set(subdirectory)
             assert ['README.md'] == files
 
         if directory == environment_path:
-            assert ['prd', 'dev', 'stg'] == subdirectory
+            assert set(['prd', 'dev', 'stg']) == set(subdirectory)
 
         if directory in environment_paths:
-            assert ['vpc.yml', 'iam.yml'] == files
+            assert set(['vpc.yml', 'iam.yml']) == set(files)
