@@ -14,3 +14,9 @@ install:
 script:
   - make setupaws
   - make test lint
+  - sonar-scanner
+addons:
+  sonarcloud:
+    organization: "cluster_funk" # the key of the org you chose at step #3
+    token:
+      secure: "PViPwlH513MTx4yuK1hAgaLrwmnDzDBPRTzAI1bf+eEMpNO3dDOw2vRQWaVvsI+CGBFLi1VX8L4tCmiB11ZIBK3kEkX7vlmu8WmXncSuamL1r3nmcwJ7I9KntziKuQ9JuUnQtQtq5uBuRlcqwc2OIWfHwMRn+uTeYM0XaBHmIdrAdxC0i4xKbGA2CHJWUQTsqe7NH8KYOy82eu9gQqfWaf48eGGyouMuW7RstUmfqpsAvTl6HF9tH/UJs/3tGsKGsZj8suaEdtlzYQKxeaCDSpKY0P9utCyb39EtlLzMWMms3kkI30HKgfmlVhSjExp0eK/Phfh2U2xDxfYePGiwRfae8pcm+iqZveLpwMrZX7P23XzcyYqxpDEjIuWot+dBvchChuOMhnfeiwZtJan7qERZX7MREZEJmxFnGczKBr/Hn+RGVQJ2e9edXaoRlZl5Xb/4Ys9CYWRC0Zg0Rg08bbErQt3gocBhXQBVxhpYhqpTZqpAGqTCTLN3h4qjQ3d2cpKGhXK4RB3OvdCYwNug9XR4834LmcYeaFMSZ0pHwvVEEia+MhnbIPCRtumwA5XMosXfCW6SrVUJnen7pgY7E4r6+vAPcEM13NztSWHz1jnqb/h5fhkT45zg3LZ/xOZJAeZ7n0VlbPChHsSu+voKEH/iP5ab6zonxN8ZgDPkZrw="
