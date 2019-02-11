@@ -153,12 +153,12 @@ class Jobs(Controller):
         }
         self.app.template.copy(example_path, job_dir, data)
         self.app.log.info("""
-            A cluster config is not created when you generate a job, 
+            A cluster config is not created when you generate a job,
             please refer to the job README.md for instructions on how to generate
             a cluster config file that can be used to run jobs on EMR
 
             Alternatively you can type if you are familiar with the process:
 
-            cluster_funk clusters generate-config -h 
-            
+            cluster_funk clusters generate-config -h
+
         """)

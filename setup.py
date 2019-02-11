@@ -26,6 +26,7 @@ setup(
         "boto3",
         "colorlog",
         "jinja2",
+        "pyyaml",
         "fabric"
     ],
     entry_points="""

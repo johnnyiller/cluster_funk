@@ -1,5 +1,6 @@
 import os
 import uuid
+import shutil
 
 from tinydb import TinyDB
 from cement import App, TestApp, init_defaults
@@ -53,6 +54,15 @@ def extend_tinydb(app):
 
     app.extend('db', db)
 
+def rm_cache_from_templates(app):
+    app.log.info('Ensure template directory is clean')
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    tp = os.path.join(dir_path, "templates")
+    pycache_dirs = [d for d, s, f in os.walk(tp) if "__pycache__" in d]
+    for directory in pycache_dirs:
+        app.log.info(directory)
+        app.log.info("removed %s" % directory)
+        shutil.rmtree(directory)
 
 class ClusterFunk(App):
     """Cluster Funk primary application."""
@@ -61,7 +71,8 @@ class ClusterFunk(App):
         label = 'cluster_funk'
 
         hooks = [
-            ('post_setup', extend_tinydb)
+            ('post_setup', extend_tinydb),
+            ('post_setup', rm_cache_from_templates)
         ]
 
         # configuration defaults
