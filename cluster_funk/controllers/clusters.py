@@ -31,14 +31,26 @@ class Clusters(Controller):
         help='list clusters',
         arguments=[
             (['-a', '--all'], {
-                'help': 'Filter list to all the clusters intead of just ones you created',
+                'help': 'Filter list to all the clusters intead of just ones \
+                        you created',
                 'action': 'store_true'
             }),
             (['-s', '--state'], {
-                'help': 'By default we only show WAITING, RUNNING clusters pass in -s multiple times for multiple states',
+                'help': 'By default we only show WAITING, RUNNING clusters \
+                        pass in -s multiple times for multiple states',
                 'action': 'append',
-                'choices': ['STARTING', 'BOOTSTRAPPING', 'RUNNING', 'WAITING', 'TERMINATING', 'TERMINATED', 'TERMINATED_WITH_ERRORS'],
-                'default': ['WAITING', 'RUNNING']
+                'choices': [
+                    'STARTING',
+                    'BOOTSTRAPPING',
+                    'RUNNING', 'WAITING',
+                    'TERMINATING',
+                    'TERMINATED',
+                    'TERMINATED_WITH_ERRORS'
+                ],
+                'default': [
+                    'WAITING',
+                    'RUNNING'
+                ]
             }),
             profile_arg()
         ]
@@ -303,12 +315,12 @@ class Clusters(Controller):
 
         if not ec2_key_name:
             log.warning("""
-            You'll likely want to be able to log in or change dependencies of this cluster. 
-            Without a key that will not be possible. If this is a dev cluster, it's almost a 
+            You'll likely want to be able to log in or change dependencies of this cluster.
+            Without a key that will not be possible. If this is a dev cluster, it's almost a
             certainty that you will want to specify a key.
-            
-            To create a key run: 
-            
+
+            To create a key run:
+
                 cluster_funk clusters create-ec2-key -n my-key-name
 
             """)

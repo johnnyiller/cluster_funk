@@ -242,7 +242,8 @@ class ClusterBooter:
             Bucket=self.bucket,
             Key="%s/scripts/%s.sh" % (self.prefix, file_name)
         )
-        return "s3://%s/%s/scripts/%s.sh" % (self.bucket, self.prefix, file_name)
+        return "s3://%s/%s/scripts/%s.sh" % (self.bucket,
+                                             self.prefix, file_name)
 
     def boot(self):
         response = self.emr_client.run_job_flow(**self.config)

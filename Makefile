@@ -1,4 +1,4 @@
-.PHONY: clean virtualenv test docker dist dist-upload lint view-coverage setupaws
+.PHONY: clean virtualenv test docker dist dist-upload lint lint-fix view-coverage setupaws
 
 clean:
 	find . -name '*.py[co]' -delete
@@ -24,7 +24,11 @@ test:
 
 lint:
 	python -m pycodestyle tests
-	python -m pycodestyle cluster_funk/core/jobs
+	python -m pycodestyle cluster_funk
+
+lint-fix:
+	python -m autopep8 -ria tests
+	python -m autopep8 -ria cluster_funk
 
 docker: clean
 	docker build -t cluster_funk:latest .

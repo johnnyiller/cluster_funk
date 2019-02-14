@@ -54,6 +54,7 @@ def extend_tinydb(app):
 
     app.extend('db', db)
 
+
 def rm_cache_from_templates(app):
     app.log.info('Ensure template directory is clean')
     dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -63,6 +64,7 @@ def rm_cache_from_templates(app):
         app.log.info(directory)
         app.log.info("removed %s" % directory)
         shutil.rmtree(directory)
+
 
 class ClusterFunk(App):
     """Cluster Funk primary application."""

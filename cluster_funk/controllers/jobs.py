@@ -8,7 +8,8 @@ from cement.utils import fs
 
 from ..core.utils import find_nearest_root
 from ..core.jobs.job_collection import JobCollection
-from ..core.clusters.cluster_instance_collection import ClusterInstanceCollection
+from ..core.clusters.cluster_instance_collection \
+    import ClusterInstanceCollection
 from ..core.clusters.emr_cluster import EmrCluster
 
 from .arguments import profile as profile_arg
@@ -19,6 +20,7 @@ from .arguments import job_name as job_name_arg
 from .arguments import job_argument as job_argument_arg
 from .arguments import ssh_key_location as ssh_key_location_arg
 from .arguments import job_on_failure as job_on_failure_arg
+
 
 def emr_client(pargs):
     session = boto3.session.Session(profile_name=pargs.profile)

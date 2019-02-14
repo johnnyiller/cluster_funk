@@ -3,7 +3,8 @@ import boto3
 
 class StackDeployer:
 
-    def __init__(self, user_id, profile, stack_prefix, env, stack_type, capabilities=['CAPABILITY_NAMED_IAM']):
+    def __init__(self, user_id, profile, stack_prefix, env,
+                 stack_type, capabilities=['CAPABILITY_NAMED_IAM']):
         self.profile = profile
         self.capabilities = capabilities
         self.stack_prefix = stack_prefix
@@ -12,8 +13,10 @@ class StackDeployer:
         self.user_id = user_id
         self.stack_name = "{stack_prefix}-{env}-{stack_type}".format(
             stack_prefix=stack_prefix, env=env, stack_type=stack_type)
-        self.template_body = open(
-            "./environments/{env}/{stack_type}.yml".format(env=env, stack_type=stack_type), 'r').read()
+        body_path = "./environments/{env}/{stack_type}.yml".format(
+            env=env,
+            stack_type=stack_type)
+        self.template_body = open(body_path, 'r').read()
 
     def deploy(self):
         session = boto3.session.Session(profile_name=self.profile)
@@ -94,6 +97,7 @@ class StackDeployer:
                     )
                 return (wait_func, response)
             except client.exceptions.ClientError as nochanges:
-                return (None, {'message': str("%s -> %s" % ("no changes to apply", nochanges))})
+                return (None, {'message': str(
+                    "%s -> %s" % ("no changes to apply", nochanges))})
 
         return (None, {'message': 'no operation performed'})

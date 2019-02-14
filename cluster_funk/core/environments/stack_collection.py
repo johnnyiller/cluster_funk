@@ -2,7 +2,7 @@ class StackCollection:
 
     def __init__(self, client=None, data=None):
         super(StackCollection, self).__init__()
-        if data == None:
+        if data is None:
             paginator = client.get_paginator('describe_stacks')
             results = paginator.paginate()
             self.list = list()
@@ -38,7 +38,8 @@ class StackCollection:
     @staticmethod
     def has_prefix(stack_prefix, stack):
         for tag in stack.get('Tags', []):
-            if tag['Key'] == 'Name' and tag.get('Value', "").startswith(stack_prefix):
+            if tag['Key'] == 'Name' and tag.get(
+                    'Value', "").startswith(stack_prefix):
                 return True
         return False
 
