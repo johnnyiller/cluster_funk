@@ -10,6 +10,7 @@ import contextlib
 import os
 import shutil
 import tempfile
+from mock import patch, MagicMock
 
 
 @contextlib.contextmanager
@@ -86,3 +87,21 @@ def emr_cluster(request):
             ]
         )
         yield (emr_client, cluster, step_ids)
+
+
+@pytest.fixture(scope='function')
+def ssh_connection(request):
+    m = MagicMock()
+    return m
+
+
+@pytest.fixture(scope='function')
+def cluster_instance_params(request):
+    return {
+        'Id': 'c-testinstance',
+        'PublicDnsName': 'my.dns.name',
+        'PublicIpAddress': '234.543.22.123',
+        'Status': {
+            'State': 'RUNNING'
+        }
+    }

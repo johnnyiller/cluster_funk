@@ -9,7 +9,7 @@ from cement.utils import fs
 class ClusterInstance:
 
     # pass the connection class in just in case we want to send in a mock
-    def __init__(self, instance_params, connect_kwargs={}):
+    def __init__(self, instance_params, connect_kwargs={}, connection_class=Connection):
         self.intance_params = instance_params
         self.id = instance_params['Id']
         self.public_dns_name = instance_params['PublicDnsName']
@@ -20,7 +20,7 @@ class ClusterInstance:
         if self.state == 'RUNNING':
             self.running = True
 
-        self.connection = Connection(
+        self.connection = connection_class(
             host=self.public_dns_name,
             user='hadoop',
             port=22,
