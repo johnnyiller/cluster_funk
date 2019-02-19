@@ -105,3 +105,10 @@ def cluster_instance_params(request):
             'State': 'RUNNING'
         }
     }
+
+
+@pytest.fixture(scope='function')
+def mock_uuid(request):
+    mock = MagicMock(return_value='uuid-thing')
+    with patch('uuid.uuid4', mock):
+        yield {'mock': mock, 'uuid': 'uuid-thing'}

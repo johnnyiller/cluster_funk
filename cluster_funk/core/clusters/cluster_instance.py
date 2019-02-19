@@ -36,7 +36,7 @@ class ClusterInstance:
     def syncfiles(self, src, dest):
 
         if not self.running:
-            raise "That Cluster Instance isn't running, can't copy files"
+            raise BaseException("That Cluster Instance isn't running, can't copy files")
 
         if os.path.isdir(src):
 
