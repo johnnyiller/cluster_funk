@@ -193,7 +193,7 @@ class ClusterBooter:
                 }
             })
 
-        if user_config['AwsXrayEnabled']:
+        if user_config.get('AwsXrayEnabled'):
             script = self._generate_xray_script()
             location = self._save_script_to_s3(script)
             base['BootstrapActions'].append({
@@ -203,7 +203,7 @@ class ClusterBooter:
                 }
             })
 
-        if user_config['Ec2KeyName']:
+        if user_config.get('Ec2KeyName'):
             base['Instances']['Ec2KeyName'] = user_config['Ec2KeyName']
 
         self.config = base

@@ -3,7 +3,7 @@ PyTest Fixtures.
 """
 import boto3
 
-from moto import mock_emr
+from moto import mock_emr, mock_s3
 
 import pytest
 import contextlib
@@ -51,6 +51,18 @@ def job_collection_data(request):
             'Id': 'j-djlkjldsjf'
         }
     ]
+
+
+@pytest.fixture(scope='function')
+def s3_client(request):
+    with mock_s3():
+        yield boto3.client('s3', region_name='us-east-1')
+
+
+@pytest.fixture(scope='function')
+def emr_client(request):
+    with mock_emr():
+        yield boto3.client('emr', region_name='us-east-1')
 
 
 @pytest.fixture(scope="function")
