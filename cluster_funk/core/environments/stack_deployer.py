@@ -92,6 +92,7 @@ class StackDeployer:
             TemplateBody=template_body,
             Capabilities=self.capabilities
         )
+
         def wait_func(waiter=client.get_waiter('stack_update_complete')):
             waiter.wait(
                 StackName=response['StackId'],
@@ -102,13 +103,12 @@ class StackDeployer:
             )
         return (wait_func, response)
 
-        
     def deploy(self, create_stack_exception=None, update_stack_exception=None):
         client = self._cloudformation_client()
 
         create_stack_exception = create_stack_exception or client.exceptions.AlreadyExistsException
-        update_stack_exception = update_stack_exception or client.exceptions.ClientError 
-        
+        update_stack_exception = update_stack_exception or client.exceptions.ClientError
+
         try:
             return self.create_stack(client)
         except create_stack_exception:
