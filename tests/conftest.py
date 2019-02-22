@@ -53,6 +53,30 @@ def job_collection_data(request):
     ]
 
 
+@pytest.fixture(scope="function")
+def stack_collection_data(request):
+    return [
+        {
+            'Id': 's-id1',
+            'Outputs': [
+                {
+                    'OutputKey': 'akey',
+                    'OutputValue': 'avalue'
+                }
+            ]
+        },
+        {
+            'Id': 's-id2',
+            'Outputs': [
+                {
+                    'OutputKey': 'akeytwo',
+                    'OutputValue': 'avaluetwo'
+                }
+            ]
+        }
+    ]
+
+
 @pytest.fixture(scope='function')
 def cloudformation_client(request):
     with mock_cloudformation():
