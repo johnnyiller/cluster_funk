@@ -3,7 +3,6 @@ class StackCollection:
     def __init__(self, client=None, data=None):
         super(StackCollection, self).__init__()
         if data is None:
-            print("got here right")
             paginator = client.get_paginator('describe_stacks')
             results = paginator.paginate()
             self.list = list()
