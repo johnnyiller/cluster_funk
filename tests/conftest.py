@@ -3,7 +3,7 @@ PyTest Fixtures.
 """
 import boto3
 
-from moto import mock_emr, mock_s3
+from moto import mock_emr, mock_s3, mock_cloudformation
 
 import pytest
 import contextlib
@@ -51,6 +51,12 @@ def job_collection_data(request):
             'Id': 'j-djlkjldsjf'
         }
     ]
+
+
+@pytest.fixture(scope='function')
+def cloudformation_client(request):
+    with mock_cloudformation():
+        yield boto3.client('cloudformation', region_name='us-east-1')
 
 
 @pytest.fixture(scope='function')
@@ -103,8 +109,7 @@ def emr_cluster(request):
 
 @pytest.fixture(scope='function')
 def ssh_connection(request):
-    m = MagicMock()
-    return m
+    return MagicMock()
 
 
 @pytest.fixture(scope='function')
