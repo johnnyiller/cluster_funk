@@ -59,7 +59,7 @@ def test_has_prefix():
         ]
     }
     assert StackCollection.has_prefix('prefixer', stack)
-    assert StackCollection.has_prefix('notprefixer', stack) == False
+    assert StackCollection.has_prefix('notprefixer', stack) is False
 
 
 def test_is_cf_stack():
@@ -73,7 +73,7 @@ def test_is_cf_stack():
     }
     assert StackCollection.is_cf_stack(stack)
     stack['Tags'][0]['Value'] = "not_cluster_funk"
-    assert StackCollection.is_cf_stack(stack) == False
+    assert StackCollection.is_cf_stack(stack) is False
 
 
 def test_has_env():
@@ -86,4 +86,4 @@ def test_has_env():
         ]
     }
     assert StackCollection.has_env("prd", stack)
-    assert StackCollection.has_env("noprod", stack) == False
+    assert StackCollection.has_env("noprod", stack) is False
