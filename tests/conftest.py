@@ -54,6 +54,29 @@ def job_collection_data(request):
 
 
 @pytest.fixture(scope="function")
+def cluster_collection_data():
+    return [
+        {
+            'Id': 'i-id1',
+            'PublicDnsName': 'www.example.com',
+            'PublicIpAddress': '192.156.22.221',
+            'Status': {
+                'State': 'RUNNING'
+            }
+        },
+        {
+            'Id': 'i-id2',
+            'PublicDnsName': 'www.example2.com',
+            'PublicIpAddress': '192.156.212.221',
+            'Status': {
+                'State': 'RUNNING'
+            }
+        }
+
+    ]
+
+
+@pytest.fixture(scope="function")
 def stack_collection_data(request):
     return [
         {
