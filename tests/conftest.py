@@ -10,7 +10,8 @@ import contextlib
 import os
 import shutil
 import tempfile
-from mock import patch, MagicMock
+from mock import patch, MagicMock, create_autospec
+from cement.ext.ext_logging import LoggingLogHandler
 
 
 @contextlib.contextmanager
@@ -129,7 +130,13 @@ def emr_cluster(request):
                 'MasterInstanceType': 'c4.large',
                 'SlaveInstanceType': 'c4.large',
                 'InstanceCount': 3
-            }
+            },
+            'Tags': [
+                {
+                    'Key': 'user_id',
+                    'Value': '123-456'
+                }
+            ]
         }
         cluster = emr_client.run_job_flow(**emr_boot_cluster)
         step_ids = emr_client.add_job_flow_steps(
@@ -176,3 +183,14 @@ def mock_uuid(request):
     mock = MagicMock(return_value='uuid-thing')
     with patch('uuid.uuid4', mock):
         yield {'mock': mock, 'uuid': 'uuid-thing'}
+
+
+@pytest.fixture(scope='function')
+def paginated_emr_client(emr_cluster):
+    client = emr_cluster[0]
+    m = MagicMock(return_value=client)
+    page_mock = MagicMock()
+    page_mock.paginate = MagicMock(return_value=[client.list_clusters()])
+    m.get_paginator = page_mock
+    with patch('cluster_funk.controllers.clusters.Clusters._emr_client', m):
+        yield m

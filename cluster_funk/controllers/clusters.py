@@ -56,16 +56,14 @@ class Clusters(Controller):
         ]
     )
     def list(self):
-        profile = self.app.pargs.profile
         states = self.app.pargs.state
         allclusters = self.app.pargs.all
-
-        session = boto3.session.Session(profile_name=profile)
-        client = session.client('emr')
+        client = self._emr_client()
         paginator = client.get_paginator('list_clusters')
 
         table = self.app.db.table('users')
         user_id = table.all()[0]['id']
+        print(user_id)
 
         def mine(cluster):
             for tag in cluster['Tags']:
@@ -491,3 +489,12 @@ class Clusters(Controller):
         resp = client.terminate_job_flows(
             JobFlowIds=[self.app.pargs.cluster_id])
         self.app.log.info(resp)
+
+    def _emr_client(self):
+        try:
+            profile = self.app.pargs.profile
+            session = boto3.session.Session(profile_name=profile)
+            return session.client('emr')
+        except BaseException as exc:
+            self.log.info(exc)
+            return boto3.client('emr')
