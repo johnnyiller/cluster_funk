@@ -8,7 +8,6 @@ class ClusterInstanceCollection:
     def __init__(self, client=None, cluster_id=None,
                  states=None, data=None, cluster_key=None, log=logging.Logger("cluster_funk")):
         self.log = log
-        super()
         if data is None:
             self.list = []
             paginator = client.get_paginator('list_instances')

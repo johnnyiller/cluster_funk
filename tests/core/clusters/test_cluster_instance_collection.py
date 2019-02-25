@@ -38,14 +38,17 @@ def test_without_data(cluster_collection_data):
     page_mock = MagicMock()
     page_mock.paginate.return_value = [{'Instances': cluster_collection_data}]
     mock.get_paginator.return_value = page_mock
+    cluster_id = 'j-id1'
 
     collection = ClusterInstanceCollection(
         cluster_key='~/.ssh/mykey',
-        client=mock
+        client=mock,
+        cluster_id=cluster_id
     )
 
     assert isinstance(collection[0], ClusterInstance)
     mock.get_paginator.assert_called_with('list_instances')
+    page_mock.paginate.assert_called_with(ClusterId=cluster_id)
 
 
 def test_syncfiles():

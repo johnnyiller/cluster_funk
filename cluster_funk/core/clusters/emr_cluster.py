@@ -6,6 +6,7 @@ class EmrCluster:
     def __init__(self, client, cluster_id, log=logging.Logger("cluster_funk")):
         self.cluster_id = cluster_id
         self.client = client
+        self.log = log
 
     def submit_spark_job(self, job_path, arguments=[], on_failure='CONTINUE'):
         base_args = [
