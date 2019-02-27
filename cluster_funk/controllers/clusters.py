@@ -98,7 +98,6 @@ class Clusters(Controller):
     def install(self):
 
         cluster_id = self.app.pargs.cluster_id
-        profile = self.app.pargs.profile
         ssh_key = self.app.pargs.ssh_key
         config_file = self.app.pargs.config_file
         log = self.app.log
@@ -199,14 +198,12 @@ class Clusters(Controller):
     )
     def copy(self):
         cluster_id = self.app.pargs.cluster_id
-        profile = self.app.pargs.profile
         ssh_key = self.app.pargs.ssh_key
         source = self.app.pargs.source
         dest = self.app.pargs.dest
         log = self.app.log
 
-        session = boto3.session.Session(profile_name=profile)
-        client = session.client('emr')
+        client = self._emr_client()
         paginator = client.get_paginator('list_instances')
 
         response_iterator = paginator.paginate(

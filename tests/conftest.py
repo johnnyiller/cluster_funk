@@ -199,10 +199,13 @@ def paginated_emr_client(emr_cluster):
 @pytest.fixture(scope='function')
 def cluster_instance_mock():
     run_cmd_mock = MagicMock(return_value='run_cmd_called')
+    syncfiles_mock = MagicMock(return_value='syncfiles_cmd_called')
     with patch('cluster_funk.core.clusters.cluster_instance.ClusterInstance.run_cmd', run_cmd_mock):
-        yield {
-            'run_cmd': run_cmd_mock
-        }
+        with patch('cluster_funk.core.clusters.cluster_instance.ClusterInstance.syncfiles', syncfiles_mock):
+            yield {
+                'run_cmd': run_cmd_mock,
+                'syncfiles': syncfiles_mock
+            }
 
 
 @pytest.fixture(scope='function')

@@ -114,3 +114,21 @@ def test_clusters_run_cmd(cluster_instance_mock, cluster_list_instances_mock):
         'run_cmd_called'
     ]
     assert expected_messages == msgs
+
+
+def test_clusters_run_cmd(cluster_instance_mock, cluster_list_instances_mock):
+    log_mock = MagicMock()
+    with patch('cluster_funk.controllers.clusters.Clusters._emr_client', cluster_list_instances_mock):
+        argv = ['clusters', 'copy', '-c', 'j-id1', '-k', '~/.ssh/mykey.pem', '-s', 'asourcefile', '-d', 'adestfile']
+        with ClusterFunkTest(argv=argv) as app:
+            app.log.backend = log_mock
+            app.run()
+            msgs = [msg[0][0] for msg in app.log.backend.info.call_args_list]
+
+    expected_msgs = [
+        '\n\nCopy file or folder asourcefile, to www.example.com:adestfile',
+        'syncfiles_cmd_called',
+        '\n\nCopy file or folder asourcefile, to www.example2.com:adestfile',
+        'syncfiles_cmd_called'
+    ]
+    assert expected_msgs == msgs
