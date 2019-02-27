@@ -194,3 +194,22 @@ def paginated_emr_client(emr_cluster):
     m.get_paginator = page_mock
     with patch('cluster_funk.controllers.clusters.Clusters._emr_client', m):
         yield m
+
+
+@pytest.fixture(scope='function')
+def cluster_instance_mock():
+    run_cmd_mock = MagicMock(return_value='run_cmd_called')
+    with patch('cluster_funk.core.clusters.cluster_instance.ClusterInstance.run_cmd', run_cmd_mock):
+        yield {
+            'run_cmd': run_cmd_mock
+        }
+
+
+@pytest.fixture(scope='function')
+def cluster_list_instances_mock(cluster_collection_data):
+    mock = MagicMock()
+    page_mock = MagicMock()
+    page_mock.paginate.return_value = [{'Instances': cluster_collection_data}]
+    mock.get_paginator.return_value = page_mock
+    mock.describe_cluster.return_value = {'Cluster': {'MasterPublicDnsName': 'www.example.com'}}
+    return MagicMock(return_value=mock)

@@ -63,7 +63,6 @@ class Clusters(Controller):
 
         table = self.app.db.table('users')
         user_id = table.all()[0]['id']
-        print(user_id)
 
         def mine(cluster):
             for tag in cluster['Tags']:
@@ -104,19 +103,17 @@ class Clusters(Controller):
         config_file = self.app.pargs.config_file
         log = self.app.log
 
-        session = boto3.session.Session(profile_name=profile)
-        client = session.client('emr')
-        response = client.describe_cluster(ClusterId=cluster_id)
+        client = self._emr_client()
 
         paginator = client.get_paginator('list_instances')
         response_iterator = paginator.paginate(ClusterId=cluster_id)
 
-        # try:
         cluster_conf = open(config_file, "r").read()
         pips = yaml.load(cluster_conf).get('PipInstall', [])
-        # except:
-        #    log.error("Sorry we couldn't find anything to pip install in your config file")
-        #    return
+
+        if not len(pips):
+            log.info('no python modules to install')
+            return
 
         for response in response_iterator:
             for instance in response['Instances']:
@@ -146,13 +143,12 @@ class Clusters(Controller):
     )
     def run_cmd(self):
         cluster_id = self.app.pargs.cluster_id
-        profile = self.app.pargs.profile
         master_only = self.app.pargs.master_only
         ssh_key = self.app.pargs.ssh_key
         log = self.app.log
 
-        session = boto3.session.Session(profile_name=profile)
-        client = session.client('emr')
+        client = self._emr_client()
+
         response = client.describe_cluster(ClusterId=cluster_id)
         master_dns = response['Cluster']['MasterPublicDnsName']
 
