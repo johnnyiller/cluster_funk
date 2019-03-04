@@ -3,6 +3,8 @@ from mock import patch, MagicMock, call
 
 from cement.ext.ext_logging import LoggingLogHandler
 import yaml
+import os
+import stat
 
 
 class Table:
@@ -116,7 +118,7 @@ def test_clusters_run_cmd(cluster_instance_mock, cluster_list_instances_mock):
     assert expected_messages == msgs
 
 
-def test_clusters_run_cmd(cluster_instance_mock, cluster_list_instances_mock):
+def test_clusters_copy(cluster_instance_mock, cluster_list_instances_mock):
     log_mock = MagicMock()
     with patch('cluster_funk.controllers.clusters.Clusters._emr_client', cluster_list_instances_mock):
         argv = ['clusters', 'copy', '-c', 'j-id1', '-k', '~/.ssh/mykey.pem', '-s', 'asourcefile', '-d', 'adestfile']
@@ -132,3 +134,35 @@ def test_clusters_run_cmd(cluster_instance_mock, cluster_list_instances_mock):
         'syncfiles_cmd_called'
     ]
     assert expected_msgs == msgs
+    expected_calls = [call('asourcefile', 'adestfile') for i in range(2)]
+    cluster_instance_mock['syncfiles'].has_calls(expected_calls)
+
+
+def test_clusters_create_ec2_key(tmp, ec2_client_mock):
+
+    log_mock = MagicMock()
+    ec2_client_function = MagicMock(return_value=ec2_client_mock)
+
+    with patch('cluster_funk.controllers.clusters.Clusters._ec2_client', ec2_client_function):
+        argv = ['clusters', 'create-ec2-key', '-n', 'testkey', '-d', tmp]
+        with ClusterFunkTest(argv=argv) as app:
+            log_mock = MagicMock()
+            app.log.backend = log_mock
+            app.run()
+
+        with ClusterFunkTest(argv=argv) as app:
+            log_mock = MagicMock()
+            app.log.backend = log_mock
+            app.run()
+
+        names = [pair['KeyName']
+                 for pair in ec2_client_mock.describe_key_pairs().get('KeyPairs', [])]
+
+        assert names == ['testkey']
+        output = os.path.join(tmp, 'testkey')
+        with open(output, 'r') as txtfile:
+            txt = txtfile.read()
+            assert '---- BEGIN RSA PRIVATE KEY ----' in txt
+
+        perms = oct(stat.S_IMODE(os.lstat(output).st_mode))
+        assert '0o600' == str(perms)

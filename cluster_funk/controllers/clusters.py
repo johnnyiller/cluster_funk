@@ -222,7 +222,7 @@ class Clusters(Controller):
             log.info(str(result))
 
     @ex(
-        help='boot a cluster based on the cluster config',
+        help='Create ec2-key required to log into and sync files to cluster',
         arguments=[
             (['-p', '--profile'], {
                 'help': 'AWS profile (default: default)',
@@ -242,12 +242,11 @@ class Clusters(Controller):
         ]
     )
     def create_ec2_key(self):
-        profile = self.app.pargs.profile
         name = self.app.pargs.name
         directory = self.app.pargs.dir
 
-        session = boto3.session.Session(profile_name=profile)
-        client = session.client('ec2')
+        client = self._ec2_client()
+
         names = [pair['KeyName']
                  for pair in client.describe_key_pairs().get('KeyPairs', [])]
 
@@ -482,6 +481,15 @@ class Clusters(Controller):
         resp = client.terminate_job_flows(
             JobFlowIds=[self.app.pargs.cluster_id])
         self.app.log.info(resp)
+
+    def _ec2_client(self):
+        try:
+            profile = self.app.pargs.profile
+            session = boto3.session.Session(profile_name=profile)
+            return session.client('ec2')
+        except BaseException as exc:
+            self.log.info(exc)
+            return boto3.client('ec2')
 
     def _emr_client(self):
         try:

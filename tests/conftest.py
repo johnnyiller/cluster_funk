@@ -3,7 +3,7 @@ PyTest Fixtures.
 """
 import boto3
 
-from moto import mock_emr, mock_s3, mock_cloudformation
+from moto import mock_emr, mock_s3, mock_cloudformation, mock_ec2
 
 import pytest
 import contextlib
@@ -216,3 +216,9 @@ def cluster_list_instances_mock(cluster_collection_data):
     mock.get_paginator.return_value = page_mock
     mock.describe_cluster.return_value = {'Cluster': {'MasterPublicDnsName': 'www.example.com'}}
     return MagicMock(return_value=mock)
+
+
+@pytest.fixture(scope='function')
+def ec2_client_mock():
+    with mock_ec2():
+        yield boto3.client('ec2', region_name='us-east-1')
