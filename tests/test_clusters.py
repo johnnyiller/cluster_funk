@@ -6,8 +6,19 @@ import yaml
 import os
 import stat
 
+EXAMPLE_CONFIG = """
+WorkLoadBucket: mybucket
+WorkLoadPrefix: prefix
+PipInstall:
+    - "pandas==2.4"
+    - "pyarrow>=1.2"
+"""
+
 
 class Table:
+    def __init__(self):
+        self.insert = MagicMock()
+
     def all(self):
         return [{'id': '123-456'}]
 
@@ -41,13 +52,6 @@ def test_clusters_list(paginated_emr_client):
     parsed = yaml.load(output)
     assert parsed['Status']['State'] == 'RUNNING'
     assert parsed['LogUri'] == 's3://somes3bucket'
-
-
-EXAMPLE_CONFIG = """
-PipInstall:
-    - "pandas==2.4"
-    - "pyarrow>=1.2"
-"""
 
 
 def test_clusters_install(cluster_instance_mock, tmp, cluster_list_instances_mock):
@@ -166,3 +170,36 @@ def test_clusters_create_ec2_key(tmp, ec2_client_mock):
 
         perms = oct(stat.S_IMODE(os.lstat(output).st_mode))
         assert '0o600' == str(perms)
+
+
+def test_boot(tmp):
+    with open('exampleconf.yml', 'w') as f:
+        f.write(EXAMPLE_CONFIG)
+
+    aws_session_mock = MagicMock()
+    wait = MagicMock()
+    boot_mock = MagicMock(return_value=[wait, {'id': 'sj-dkkd'}])
+    log_mock = MagicMock()
+
+    with patch('cluster_funk.core.clusters.cluster_booter.ClusterBooter._set_config', MagicMock()):
+        with patch('cluster_funk.core.clusters.cluster_booter.ClusterBooter.boot', boot_mock):
+            with patch('cluster_funk.controllers.clusters.Clusters._aws_session', aws_session_mock):
+                argv = ['clusters', 'boot', '-k', 'testkey', '-c', 'exampleconf.yml']
+                with ClusterFunkTest(argv=argv) as app:
+                    app.log.backend = log_mock
+                    app.db = MagicMock()
+                    table = Table()
+                    app.db.table.return_value = table
+                    app.run()
+                    msgs = [msg[0][0] for msg in app.log.backend.info.call_args_list]
+                    calls = [call('users'), call('history')]
+                    app.db.table.assert_has_calls(calls)
+                    table.insert.assert_called_once()
+
+    expected_logs = [
+        'Waiting for cluster to boot.  This can take about 10 minutes.  Feel free to grab a cup of ☕',
+        'All set, cluster is fully booted.'
+    ]
+    assert expected_logs == msgs
+    boot_mock.assert_called_once()
+    wait.assert_called_once()

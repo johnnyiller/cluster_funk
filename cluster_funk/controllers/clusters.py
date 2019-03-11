@@ -339,7 +339,7 @@ class Clusters(Controller):
         config['Tags']['user_id'] = user_id
         config['Ec2KeyName'] = self.app.pargs.ec2_key_name or None
 
-        session = boto3.session.Session(profile_name=profile)
+        session = self._aws_session()
 
         booter = ClusterBooter(config, session)
         wait, resp = booter.boot()
@@ -395,8 +395,8 @@ class Clusters(Controller):
         job = args.job or "unknown job"
         env = args.env or "dev"
 
-        session = boto3.session.Session(profile_name=args.profile)
-        client = session.client('cloudformation')
+        client = self._cloudformation_client()
+
         stacks = StackCollection(client). \
             filter_by(StackCollection.is_cf_stack). \
             filter_by(partial(StackCollection.has_env, args.env)). \
@@ -482,20 +482,21 @@ class Clusters(Controller):
             JobFlowIds=[self.app.pargs.cluster_id])
         self.app.log.info(resp)
 
-    def _ec2_client(self):
+    def _get_client(self, name):
         try:
-            profile = self.app.pargs.profile
-            session = boto3.session.Session(profile_name=profile)
-            return session.client('ec2')
+            return self._aws_session().client(name)
         except BaseException as exc:
             self.log.info(exc)
-            return boto3.client('ec2')
+            return boto3.client(name)
+
+    def _aws_session(self):
+        return boto3.session.Session(profile_name=self.app.pargs.profile)
+
+    def _cloudformation_client(self):
+        return self._get_client('cloudformation')
+
+    def _ec2_client(self):
+        return self._get_client('ec2')
 
     def _emr_client(self):
-        try:
-            profile = self.app.pargs.profile
-            session = boto3.session.Session(profile_name=profile)
-            return session.client('emr')
-        except BaseException as exc:
-            self.log.info(exc)
-            return boto3.client('emr')
+        return self._get_client('emr')
