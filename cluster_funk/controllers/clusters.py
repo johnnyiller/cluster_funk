@@ -298,7 +298,6 @@ class Clusters(Controller):
     def boot(self):
 
         ec2_key_name = self.app.pargs.ec2_key_name or None
-        profile = self.app.pargs.profile
         log = self.app.log
         config_path = self.app.pargs.config
         should_prompt = not self.app.pargs.Y
